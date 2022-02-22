@@ -14,6 +14,7 @@
 
 ```sh
    yarn
+   
 ```
 ## Configurações - Variáveis de ambiente:
 **Vá ao arquivo .env e preencha as seguintes variáveis:**
