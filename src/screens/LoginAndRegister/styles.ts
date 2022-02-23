@@ -20,18 +20,18 @@ export const FooterContent = styled.View`
 `;
 
 export const Title = styled.Text`
-  margin-top: ${hp('9%')};
+  margin-top: ${hp('8%')}px;
   font-family: ${theme.font.medium};
   font-size: ${RFValue(20)}px;
   text-align: center;
 `;
 
 export const TopBarContent = styled.View`
-  margin-top: ${hp('5%')};
-  width: ${wp('50%')};
+  margin-top: ${hp('3%')}px;
+  width: ${wp('40%')}px;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
 `;
 
 export const TopBarSwitchBar = styled(Animated.View)`
@@ -54,15 +54,35 @@ export const TitleButtonTopBar = styled.Text`
   padding-bottom: 4px;
 `;
 
-export const InputContent = styled.View`
-  border-bottom-width: 1px;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: row;
+export const InputContent = styled(Animated.View)`
+  align-items: flex-start;
+  width: ${wp('80%')}px;
+  margin-top: 21px;
+`;
+
+export const ContentLabel = styled.View`
+  background-color: ${theme.color.white};
+  position: absolute;
+  top: -9px;
+  left: 16px;
+  padding: 2px;
 `;
 
 export const Input = styled(TextInput)`
-  
+  height: 54px;
+  border-width: 1px;
+  border-radius: 7px;
+  border-color: ${theme.color.gray_medium};
+  width: ${wp('80%')}px;
+  padding-left: 17px;
+  font-size: ${RFValue(15)}px;
+`;
+
+export const InputLabel = styled.Text`
+  font-family: ${theme.font.regular};
+  font-size: ${RFValue(12)}px;
+  text-align: center;
+  color: ${theme.color.gray_medium};
 `;
 
 export const SubmitButton = styled(RectButton)`
