@@ -29,7 +29,7 @@ import {
   LoadContent,
   Icon
 } from './styles';
-;
+
 
 const Home: React.FC = () => {
 
