@@ -15,7 +15,8 @@ import SearchCard from '../../components/SearchCard';
 import { getWeatherForecast } from '../../services/api';
 import CityCard from '../../components/CityCard';
 import Search from '../../assets/Search.svg';
-import {API_GOOGLE_PLACES_KEY} from '@env';
+import Power from '../../assets/power.svg';
+import { API_GOOGLE_PLACES_KEY } from '@env';
 
 import {
   Title,
@@ -27,8 +28,11 @@ import {
   DefaultTitle,
   TitleContent,
   LoadContent,
-  Icon
+  WelcomeText,
+  LogoutButton
 } from './styles';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 
 const Home: React.FC = () => {
@@ -37,7 +41,12 @@ const Home: React.FC = () => {
   const [coordinates, setCoordinates] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [firstRefresh, setFirstRefresh] = useState(false);
+  const [username, setUsername] = useState('');
   const [data, setData] = useState([]);
+
+  const profileURL = "https://drf-weather-forecast-app.herokuapp.com/profile/"
+
+  const {navigate} = useNavigation();
 
   useEffect(() => {
     const currentDailyTempKey = '@weatherForecastApp:tempDay';
@@ -60,6 +69,22 @@ const Home: React.FC = () => {
     // AsyncStorage.clear();
   }, [])
 
+  useEffect(() => {
+    async function getUserName() {
+      const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
+
+      const AuthStr = 'Token '.concat(USER_TOKEN!);
+      axios.get(profileURL, { headers: { Authorization: AuthStr } })
+        .then(response => {
+          setUsername(response.data.name.split(' ')[0])
+        })
+        .catch((error) => {
+          console.log('error ' + error);
+          navigate('LoginAndRegister')
+        });
+    }
+    getUserName()
+  }, [])
 
   return (
     <>
@@ -86,6 +111,17 @@ const Home: React.FC = () => {
               </LoadContent>
             ) : (
               <>
+                <WelcomeText>
+                  Olá, {username}
+                </WelcomeText>
+                <LogoutButton
+                  onPress={() => {
+                    AsyncStorage.clear()
+                    navigate('LoginAndRegister')
+                  }}
+                >
+                  <Power/>
+                </LogoutButton>
                 <TitleContent>
                   {
                     !isSearching ? (
@@ -96,7 +132,7 @@ const Home: React.FC = () => {
                         <OpenOrCloseButton
                           onPress={() => setIsSearching(true)}
                         >
-                          <Search/>
+                          <Search />
                         </OpenOrCloseButton>
                       </>
                     ) : (
@@ -190,14 +226,14 @@ const Home: React.FC = () => {
                       Tente adicionar uma cidade usando o botão{'\n'}de busca
                     </Description>
                   </InfoContent>
-              
+
                 }
                 {
                   !isSearching && data !== [] &&
                   <FlatList
                     data={data}
                     keyExtractor={(_, index) => index.toString()}
-                    renderItem={({item}) => {
+                    renderItem={({ item }) => {
                       return (
                         <CityCard
                           city={item.name}
@@ -211,7 +247,7 @@ const Home: React.FC = () => {
                       )
 
                     }}
-                    contentContainerStyle={{alignItems: 'center'}}
+                    contentContainerStyle={{ alignItems: 'center' }}
                   />
                 }
               </>

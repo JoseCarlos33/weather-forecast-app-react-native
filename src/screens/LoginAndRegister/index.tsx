@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Footer from '../../assets/main-footer.svg';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, View, Alert} from 'react-native';
 
 import {
   Container,
@@ -16,9 +16,14 @@ import {
   InputContent,
   Input,
   InputLabel,
-  ContentLabel
+  ContentLabel,
+  InputPassword
 } from './styles';
 import { theme } from '../../utils/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+
+const axios = require('axios');
 
 interface ContentProps {
   width: number;
@@ -29,19 +34,30 @@ function LoginAndRegister() {
   const [signInOption, setSignInOption] = useState(true)
   const [loginContentInfo, setLoginContentInfo] = useState<ContentProps>({} as ContentProps);
   const [registerContentInfo, setRegisterContentInfo] = useState<ContentProps>({} as ContentProps);
-  const [email, setEmail] = useState();
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [city, setCity] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const moveRefButton = useRef(new Animated.Value(380)).current
   const moveRefPassword = useRef(new Animated.Value(300)).current
+  const moveRefEmail = useRef(new Animated.Value(300)).current
   const moveYRefConfirmPassword = useRef(new Animated.Value(445)).current
   const moveXRefConfirmPassword = useRef(new Animated.Value(100)).current
   const opacityRefConfirmPassword = useRef(new Animated.Value(0)).current
   const moveRefName = useRef(new Animated.Value(100)).current
   const opacityRefName = useRef(new Animated.Value(0)).current
   const moveRefCity = useRef(new Animated.Value(-100)).current
+  const moveYRefCity = useRef(new Animated.Value(295)).current
   const opacityRefCity = useRef(new Animated.Value(0)).current
   const moveRefSwitchBottomBar = useRef(new Animated.Value(0)).current
   const widthRefSwitchBottomBar = useRef(new Animated.Value(0)).current
+
+  const registerURL = 'https://drf-weather-forecast-app.herokuapp.com/register/'
+  const loginURL = 'https://drf-weather-forecast-app.herokuapp.com/login/'
+
+  const {navigate} = useNavigation()
 
   const translateYButton = {
     transform: [
@@ -89,14 +105,63 @@ function LoginAndRegister() {
     ]
   };
 
+  const animatedEmail = {
+    transform: [
+      {
+        translateY: moveRefEmail
+      },
+    ]
+  };
+
   const animatedCity = {
     opacity: opacityRefCity,
     transform: [
+      {
+        translateY: moveYRefCity
+      },
       {
         translateX: moveRefCity
       },
     ]
   };
+
+  async function handleSubmitRegister() {
+    if (!signInOption) {
+      let data = {
+        "name": name,
+        "email": email,
+        "current_city": city,
+        "password": password
+      }
+
+      let res = await axios.post(registerURL, data);
+
+      let response = res.data;
+      console.log(response);
+      setName('');
+      setEmail('');
+      setCity('');
+      setPassword('');
+      setConfirmPassword('');
+
+      setSignInOption(true)
+    }else{
+      try {
+        let loginData = {
+          "email": email,
+          "password": password
+        }
+        const response = await axios.post(loginURL, loginData);
+        AsyncStorage.setItem('@WFA:user_token',response.data.token)
+        setEmail('');
+        setPassword('');
+        navigate('Home');
+       } catch (error) {
+        Alert.alert('Email ou senha incorreta');
+       }
+     
+    }
+  }
 
   useEffect(() => {
     if (signInOption) {
@@ -105,7 +170,7 @@ function LoginAndRegister() {
           moveRefButton,
           {
             toValue: 320,
-            duration: 500,
+            duration: 450,
             easing: Easing.ease,
             useNativeDriver: true
           }
@@ -114,6 +179,15 @@ function LoginAndRegister() {
           moveRefPassword,
           {
             toValue: 220,
+            duration: 300,
+            easing: Easing.ease,
+            useNativeDriver: true
+          }
+        ),
+        Animated.timing(
+          moveRefEmail,
+          {
+            toValue: 145,
             duration: 300,
             easing: Easing.ease,
             useNativeDriver: true
@@ -189,7 +263,16 @@ function LoginAndRegister() {
           moveRefButton,
           {
             toValue: 550,
-            duration: 500,
+            duration: 350,
+            easing: Easing.ease,
+            useNativeDriver: true
+          }
+        ),
+        Animated.timing(
+          moveRefEmail,
+          {
+            toValue: 220,
+            duration: 300,
             easing: Easing.ease,
             useNativeDriver: true
           }
@@ -229,7 +312,7 @@ function LoginAndRegister() {
             moveRefName,
             {
               toValue: 0,
-              duration: 300,
+              duration: 400,
               easing: Easing.ease,
               useNativeDriver: true
             }
@@ -249,7 +332,7 @@ function LoginAndRegister() {
             moveRefCity,
             {
               toValue: 0,
-              duration: 300,
+              duration: 340,
               easing: Easing.ease,
               useNativeDriver: true
             }
@@ -269,7 +352,7 @@ function LoginAndRegister() {
             moveXRefConfirmPassword,
             {
               toValue: 0,
-              duration: 300,
+              duration: 340,
               easing: Easing.ease,
               useNativeDriver: true
             }
@@ -324,14 +407,22 @@ function LoginAndRegister() {
         <TopBarSwitchBar style={translateXSwitchBottomBar} />
       </TopBarContent>
 
-      <InputContent>
+      <InputContent style={[animatedEmail, { position: 'absolute' }]}>
         <Input
           onChangeText={setEmail}
           value={email}
           placeholder="Digite aqui o seu email"
+          autoCapitalize={"none"}
+          style={{
+            borderColor: email !== '' ? theme.color.dark_blue : theme.color.gray_medium
+          }}
         />
         <ContentLabel>
-          <InputLabel>Email</InputLabel>
+          <InputLabel
+            style={{
+              color: email !== '' ? theme.color.dark_blue : theme.color.gray_medium
+            }}
+          >Email</InputLabel>
         </ContentLabel>
       </InputContent>
       {
@@ -339,55 +430,87 @@ function LoginAndRegister() {
         <>
           <InputContent style={animatedName}>
             <Input
-              onChangeText={setEmail}
-              value={email}
+              onChangeText={setName}
+              autoCapitalize={"words"}
+              value={name}
               placeholder="Digite aqui o seu nome"
+              style={{
+                borderColor: name !== '' ? theme.color.dark_blue : theme.color.gray_medium
+              }}
             />
             <ContentLabel>
-              <InputLabel>Nome</InputLabel>
+              <InputLabel
+                style={{
+                  color: name !== '' ? theme.color.dark_blue : theme.color.gray_medium
+                }}
+              >Nome</InputLabel>
             </ContentLabel>
           </InputContent>
-          <InputContent style={animatedCity}>
+          <InputContent style={[animatedCity, { position: 'absolute' }]}>
             <Input
-              onChangeText={setEmail}
-              value={email}
+              onChangeText={setCity}
+              value={city}
               placeholder="Digite aqui o sua cidade"
+              style={{
+                borderColor: city !== '' ? theme.color.dark_blue : theme.color.gray_medium
+              }}
             />
             <ContentLabel>
-              <InputLabel>Cidade</InputLabel>
+              <InputLabel
+                style={{
+                  color: city !== '' ? theme.color.dark_blue : theme.color.gray_medium
+                }}
+              >Cidade</InputLabel>
             </ContentLabel>
           </InputContent>
         </>
       }
       <InputContent style={[translateYPasswordInput, { position: 'absolute' }]}>
         <Input
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Digite aqui o sua senha"
+          onChangeText={setPassword}
+          autoCapitalize={"none"}
+          value={password}
+          placeholder="Digite aqui a sua senha"
+          style={{
+            borderColor: password !== '' ? theme.color.dark_blue : theme.color.gray_medium
+          }}
+          secureTextEntry={true}
         />
         <ContentLabel>
-          <InputLabel>Senha</InputLabel>
+          <InputLabel
+            style={{
+              color: password !== '' ? theme.color.dark_blue : theme.color.gray_medium
+            }}
+          >Senha</InputLabel>
         </ContentLabel>
       </InputContent>
 
       {
         !signInOption &&
-        <InputContent style={[animatedConfirmPasswordInput, {position: 'absolute'}]}>
+        <InputContent style={[animatedConfirmPasswordInput, { position: 'absolute' }]}>
           <Input
-            onChangeText={setEmail}
-            value={email}
+            onChangeText={setConfirmPassword}
+            autoCapitalize={"none"}
+            value={confirmPassword}
             placeholder="Digite novamente sua senha"
-
+            style={{
+              borderColor: confirmPassword !== '' ? theme.color.dark_blue : theme.color.gray_medium
+            }}
+            secureTextEntry={true}
           />
           <ContentLabel>
-            <InputLabel>Confirmar senha</InputLabel>
+            <InputLabel
+              style={{
+                color: confirmPassword !== '' ? theme.color.dark_blue : theme.color.gray_medium
+              }}
+            >Confirmar senha</InputLabel>
           </ContentLabel>
         </InputContent>
       }
 
 
       <ButtonContentAnimated style={translateYButton}>
-        <SubmitButton>
+        <SubmitButton onPress={handleSubmitRegister} >
           <TitleButton>
             {signInOption ? "Entrar" : "Cadastrar"}
           </TitleButton>

@@ -19,6 +19,16 @@ export const Title = styled.Text`
   text-align: center;
 `;
 
+export const WelcomeText = styled.Text`
+  top: ${hp('7%')}px;
+  font-family: ${theme.font.medium};
+  font-size: ${RFValue(27)}px;
+  text-align: center;
+  position: absolute;
+  left:  ${wp('4.5%')}px;
+  color: ${theme.color.white};
+`;
+
 export const InfoContent = styled.View`
   align-items: center;
   justify-content: center;
@@ -32,7 +42,7 @@ export const Description = styled.Text`
 `;
 
 export const HeaderContainer = styled.View`
-  height: ${hp('13%')}px;
+  height: ${hp('19%')}px;
   width: ${wp('100%')}px;
   background-color: ${theme.color.blue};
 `;
@@ -58,6 +68,17 @@ export const OpenOrCloseButton = styled.TouchableOpacity`
   border-radius: 30px;
   align-items: center;
   justify-content: center;
+`;
+
+export const LogoutButton = styled.TouchableOpacity`
+  height: ${hp('5%')}px;
+  width: ${wp('10%')}px;
+  border-radius: 30px;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: ${hp('7%')}px;
+  right: ${wp('6%')}px;
 `;
 
 export const LoadContent = styled.View`

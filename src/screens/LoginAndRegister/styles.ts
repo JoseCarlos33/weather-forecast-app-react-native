@@ -7,6 +7,7 @@ import {
 } from 'react-native-responsive-screen';
 import { TextInput, Animated } from 'react-native';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
+import { TextInputMask } from 'react-native-masked-text';
 
 export const Container = styled.View`
   flex: 1;
@@ -76,6 +77,18 @@ export const Input = styled(TextInput)`
   width: ${wp('80%')}px;
   padding-left: 17px;
   font-size: ${RFValue(15)}px;
+  color: ${theme.color.blue};
+`;
+
+export const InputPassword = styled(TextInputMask)`
+  height: 54px;
+  border-width: 1px;
+  border-radius: 7px;
+  border-color: ${theme.color.gray_medium};
+  width: ${wp('80%')}px;
+  padding-left: 17px;
+  font-size: ${RFValue(15)}px;
+  color: ${theme.color.blue};
 `;
 
 export const InputLabel = styled.Text`
