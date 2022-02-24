@@ -10,7 +10,7 @@ export async function getWeatherForecast(lat: number, long: number, name: string
       const currentDailyTempKey = '@weatherForecastApp:tempDay';
       const weatherForecastData = await AsyncStorage.getItem(currentDailyTempKey);
       const previusData = weatherForecastData ? JSON.parse(weatherForecastData) : '';
-      console.log(API_WEATHER_FORECAST_KEY)
+      
       const data = {
         name: name,
         country: country,

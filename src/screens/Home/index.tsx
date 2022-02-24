@@ -42,11 +42,43 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [firstRefresh, setFirstRefresh] = useState(false);
   const [username, setUsername] = useState('');
+  const [countNewResquest, setCountNewRequest] = useState(0);
   const [data, setData] = useState([]);
 
   const profileURL = "https://drf-weather-forecast-app.herokuapp.com/profile/"
+  const searchRequestURL = "https://drf-weather-forecast-app.herokuapp.com/search/"
 
   const {navigate} = useNavigation();
+
+  async function handleRequest(lat: number, long: number, name: string, country: string){
+    const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
+    const latFormatted = lat.toString()
+    const longFormatted = long.toString()
+
+    const dataFormatted = {
+      "country": country,
+      "city_name": name,
+      "longitude": longFormatted,
+      "latitude": latFormatted
+    }
+
+    const AuthStr = 'Token '.concat(USER_TOKEN!);
+    axios.post(searchRequestURL, dataFormatted, { 
+      headers: { Authorization: AuthStr } 
+    })
+      .then(response => {
+        setCountNewRequest(countNewResquest+1)
+        console.log(response.data)
+      })
+      .catch((error) => {
+        console.log('error ' + error);
+      });
+    // getWeatherForecast(lat, long, name, country);
+  }
+
+  useEffect(() => {
+    
+  },[])
 
   useEffect(() => {
     const currentDailyTempKey = '@weatherForecastApp:tempDay';
@@ -151,7 +183,7 @@ const Home: React.FC = () => {
                           const country = data.terms[quantTerms].value;
                           const lat = details.geometry.location.lat;
                           const long = details.geometry.location.lng;
-                          getWeatherForecast(lat, long, name, country);
+                          handleRequest(lat, long, name, country)
                         }}
                         query={{
                           key: API_GOOGLE_PLACES_KEY,
