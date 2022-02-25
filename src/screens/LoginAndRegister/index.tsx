@@ -362,6 +362,16 @@ function LoginAndRegister() {
     }
   }, [signInOption])
 
+  useEffect(() => {
+    async function IsActiveUser(){
+      const response = AsyncStorage.getItem('@WFA:user_token')
+      if(response !== ''){
+        navigate('Home') 
+      } 
+    }
+    IsActiveUser()
+  }, [])
+
   return (
     <Container>
       <FooterContent>

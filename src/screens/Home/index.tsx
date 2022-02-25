@@ -33,8 +33,13 @@ import {
 } from './styles';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { useCardData } from '../../hooks/dataContext';
 
-
+export function teste(){
+  const {handleUpdateCardData} = useCardData();
+  
+  handleUpdateCardData(3)
+}
 const Home: React.FC = () => {
 
   const [isSearching, setIsSearching] = useState(false);
@@ -47,8 +52,10 @@ const Home: React.FC = () => {
 
   const profileURL = "https://drf-weather-forecast-app.herokuapp.com/profile/"
   const searchRequestURL = "https://drf-weather-forecast-app.herokuapp.com/search/"
+  const userCitiesURL = "https://drf-weather-forecast-app.herokuapp.com/user/cities/"
 
   const {navigate} = useNavigation();
+  const {card, handleUpdateCardData} = useCardData();
 
   async function handleRequest(lat: number, long: number, name: string, country: string){
     const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
@@ -73,28 +80,43 @@ const Home: React.FC = () => {
       .catch((error) => {
         console.log('error ' + error);
       });
-    // getWeatherForecast(lat, long, name, country);
   }
 
   useEffect(() => {
-    
-  },[])
-
-  useEffect(() => {
-    const currentDailyTempKey = '@weatherForecastApp:tempDay';
-
     async function getInfoAboutWeatherForecast() {
+      const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
+      
       setIsLoading(true);
-      setTimeout(async () => {
-        const weatherForecastData = await AsyncStorage.getItem(currentDailyTempKey);
-        const formattedData = weatherForecastData ? JSON.parse(weatherForecastData) : [];
-        setData(formattedData);
-        setIsLoading(false);
-      }, 2000);
+      const AuthStr = 'Token '.concat(USER_TOKEN!);
+      await axios.get(userCitiesURL, { 
+        headers: { Authorization: AuthStr } 
+      })
+        .then(response => {
+          response.data.map((item) => {
+            let lat = Number(item.latitude);
+            let long = Number(item.longitude);
+            console.log(lat)
+            const data = { 
+              lat, 
+              long, 
+              name: item.city_name, 
+              country: item.country
+            }
+            handleUpdateCardData(
+              data
+            )
+            
+          })
+        })
+        .catch((error) => {
+          console.log('error ' + error);
+        });
+
+      setIsLoading(false);    
     }
 
     getInfoAboutWeatherForecast();
-  }, [coordinates, firstRefresh]);
+  }, []);
 
   useEffect(() => {
     setFirstRefresh(true);
@@ -102,7 +124,14 @@ const Home: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    async function getUserName() {
+    
+    setData(card)
+    console.log('DATA',data)
+    
+  },[card])
+
+  useEffect(() => {
+    async function getUserNameAndSearchedCities() {
       const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
 
       const AuthStr = 'Token '.concat(USER_TOKEN!);
@@ -115,7 +144,7 @@ const Home: React.FC = () => {
           navigate('LoginAndRegister')
         });
     }
-    getUserName()
+    getUserNameAndSearchedCities()
   }, [])
 
   return (
