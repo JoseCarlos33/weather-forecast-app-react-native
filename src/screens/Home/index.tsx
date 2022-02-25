@@ -16,7 +16,8 @@ import { getWeatherForecast } from '../../services/api';
 import CityCard from '../../components/CityCard';
 import Search from '../../assets/Search.svg';
 import Power from '../../assets/power.svg';
-import { API_GOOGLE_PLACES_KEY } from '@env';
+import { API_GOOGLE_PLACES_KEY, API_WEATHER_FORECAST_KEY } from '@env';
+
 
 import {
   Title,
@@ -33,13 +34,26 @@ import {
 } from './styles';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { useCardData } from '../../hooks/dataContext';
 
-export function teste(){
-  const {handleUpdateCardData} = useCardData();
-  
-  handleUpdateCardData(3)
+interface cardProps {
+  name: string;
+  country: string;
+  lat: number;
+  long: number;
+  dailyTemp: string | number;
+  minTemp: string | number;
+  maxTemp: string | number;
+  description: string;
 }
+
+interface BasicInfoProps{
+  lat: number;
+  long: number;
+  name: string;
+  country: string;
+}
+
+
 const Home: React.FC = () => {
 
   const [isSearching, setIsSearching] = useState(false);
@@ -47,6 +61,8 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [firstRefresh, setFirstRefresh] = useState(false);
   const [username, setUsername] = useState('');
+  let card = []
+  const [length, setLength] = useState();
   const [countNewResquest, setCountNewRequest] = useState(0);
   const [data, setData] = useState([]);
 
@@ -55,7 +71,6 @@ const Home: React.FC = () => {
   const userCitiesURL = "https://drf-weather-forecast-app.herokuapp.com/user/cities/"
 
   const {navigate} = useNavigation();
-  const {card, handleUpdateCardData} = useCardData();
 
   async function handleRequest(lat: number, long: number, name: string, country: string){
     const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
@@ -82,6 +97,30 @@ const Home: React.FC = () => {
       });
   }
 
+  async function handleUpdateCardData(item: BasicInfoProps) {
+    await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${item.lat}&lon=${item.long}&lang=pt_br&appid=${API_WEATHER_FORECAST_KEY}&units=metric`)
+    .then(data => data.json())
+    .then(async (results) => {
+      const data = {
+        name: item.name,
+        country: item.country,
+        lat: item.lat,
+        long: item.long,
+        dailyTemp: results.daily[0].temp.day,
+        minTemp: results.daily[0].temp.min,
+        maxTemp: results.daily[1].temp.max,
+        description: results.daily[0].weather[0].description,
+      };
+      // if(card.length <= length){
+        card.push(data)
+        setData(card)
+      // }
+    })
+    .catch(err => {
+      console.log(err.message);
+    })
+  }
+
   useEffect(() => {
     async function getInfoAboutWeatherForecast() {
       const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
@@ -93,42 +132,41 @@ const Home: React.FC = () => {
       })
         .then(response => {
           response.data.map((item) => {
+            setIsLoading(true);    
             let lat = Number(item.latitude);
             let long = Number(item.longitude);
-            console.log(lat)
+            
             const data = { 
               lat, 
               long, 
               name: item.city_name, 
-              country: item.country
+              country: item.country 
             }
+            // console.log(response.data.length-1)
+            
             handleUpdateCardData(
               data
             )
-            
+            setLength(response.data.length-1)
           })
         })
         .catch((error) => {
           console.log('error ' + error);
         });
-
-      setIsLoading(false);    
+        setTimeout(() => {
+          setIsLoading(false);    
+        }, 3000);
+      
     }
 
     getInfoAboutWeatherForecast();
   }, []);
 
   useEffect(() => {
-    setFirstRefresh(true);
+      setFirstRefresh(true);
     // AsyncStorage.clear();
   }, [])
 
-  useEffect(() => {
-    
-    setData(card)
-    console.log('DATA',data)
-    
-  },[card])
 
   useEffect(() => {
     async function getUserNameAndSearchedCities() {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {API_WEATHER_FORECAST_KEY} from '@env';
+
 
 interface cardProps {
   name: string;
@@ -21,6 +21,7 @@ interface BasicInfoProps{
 
 
 interface WeatherForecastContextData {
+  setLength(num: number): void;
   card: cardProps;
   handleUpdateCardData(item: BasicInfoProps): void;
 }
@@ -30,44 +31,14 @@ const CardContext = createContext<WeatherForecastContextData>(
 );
 
 const CardProvider: React.FC = ({ children }) => {
-  const [card, setCard] = useState<cardProps[]>([]);
+  let card = []
 
-  async function handleUpdateCardData(item: BasicInfoProps) {
-    await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${item.lat}&lon=${item.long}&lang=pt_br&appid=${API_WEATHER_FORECAST_KEY}&units=metric`)
-    .then(data => data.json())
-    .then(async (results) => {
-      console.log('')
-      const data = {
-        name: item.name,
-        country: item.country,
-        lat: item.lat,
-        long: item.long,
-        dailyTemp: results.daily[0].temp.day,
-        minTemp: results.daily[0].temp.min,
-        maxTemp: results.daily[1].temp.max,
-        description: results.daily[0].weather[0].description,
-      };
-      
-      const found = card.includes(data);
-      console.log(found)
-
-      if(!found){
-        let newList = card
-        newList.push(data)
-        setCard(newList)
-      }
-      
-    })
-    .catch(err => {
-      console.log(err.message);
-    })
-  }
+  
 
   return (
     <CardContext.Provider
       value={{
-        card,
-        handleUpdateCardData,
+        card
       }}
     >
       {children}
