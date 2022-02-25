@@ -91,6 +91,8 @@ const Home: React.FC = () => {
       .then(response => {
         setCountNewRequest(countNewResquest+1)
         console.log(response.data)
+        card = []
+        getInfoAboutWeatherForecast()
       })
       .catch((error) => {
         console.log('error ' + error);
@@ -114,57 +116,54 @@ const Home: React.FC = () => {
       // if(card.length <= length){
         card.push(data)
         setData(card)
-      // }
+      // } 
+      
     })
     .catch(err => {
       console.log(err.message);
     })
   }
 
-  useEffect(() => {
-    async function getInfoAboutWeatherForecast() {
-      const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
-      
-      setIsLoading(true);
-      const AuthStr = 'Token '.concat(USER_TOKEN!);
-      await axios.get(userCitiesURL, { 
-        headers: { Authorization: AuthStr } 
-      })
-        .then(response => {
-          response.data.map((item) => {
-            setIsLoading(true);    
-            let lat = Number(item.latitude);
-            let long = Number(item.longitude);
-            
-            const data = { 
-              lat, 
-              long, 
-              name: item.city_name, 
-              country: item.country 
-            }
-            // console.log(response.data.length-1)
-            
-            handleUpdateCardData(
-              data
-            )
-            setLength(response.data.length-1)
-          })
+  async function getInfoAboutWeatherForecast() {
+    const USER_TOKEN = await AsyncStorage.getItem('@WFA:user_token');
+    
+    setIsLoading(true);
+    const AuthStr = 'Token '.concat(USER_TOKEN!);
+    await axios.get(userCitiesURL, { 
+      headers: { Authorization: AuthStr } 
+    })
+      .then(response => {
+        response.data.map((item) => {
+          setIsLoading(true);    
+          let lat = Number(item.latitude);
+          let long = Number(item.longitude);
+          
+          const data = { 
+            lat, 
+            long, 
+            name: item.city_name, 
+            country: item.country 
+          }
+          // console.log(response.data.length-1)
+          
+          handleUpdateCardData(
+            data
+          )
+          setLength(response.data.length-1)
         })
-        .catch((error) => {
-          console.log('error ' + error);
-        });
-        setTimeout(() => {
-          setIsLoading(false);    
-        }, 3000);
-      
-    }
-
-    getInfoAboutWeatherForecast();
-  }, []);
+      })
+      .catch((error) => {
+        console.log('error ' + error);
+      });
+      setTimeout(() => {
+        setIsLoading(false);    
+      }, 3000);
+    
+  }
 
   useEffect(() => {
-      setFirstRefresh(true);
-    // AsyncStorage.clear();
+    setFirstRefresh(true);
+    getInfoAboutWeatherForecast();
   }, [])
 
 

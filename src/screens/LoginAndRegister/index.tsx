@@ -143,7 +143,7 @@ function LoginAndRegister() {
       setCity('');
       setPassword('');
       setConfirmPassword('');
-
+      Alert.alert('Conta cadastrada com sucesso!')
       setSignInOption(true)
     }else{
       try {
