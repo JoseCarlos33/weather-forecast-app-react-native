@@ -1,8 +1,11 @@
 <h1 align="center">
   Weather Forecast App
 </h1>
-<h3 align="center">>
-  Projeto desenvolvido para pesquisa e renderização de previsão do tempo de cidades.
+<h3 align="center">
+  Projeto fullstack com função de pesquisar e fornecer em tempo real dados sobre previsão do tempo e cadastrar no backend todas as cidades pesquisadas de cada usuário.
+</h3>
+<h3 align="center">
+  Backend do projeto -> https://github.com/JoseCarlos33/Django-Profile-Manager-API
 </h3>
 <p align="center">
   <img src="./src/assets/demonstration.gif" 
